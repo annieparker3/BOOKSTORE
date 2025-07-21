@@ -1,0 +1,6 @@
+{
+  "name": "MAV Library",
+  "description": "A modern library system where users can browse, borrow, and manage books. Features include an AI book recommender, comprehensive search, user dashboards, and an admin panel.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
