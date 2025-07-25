@@ -6,6 +6,8 @@
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -22,9 +24,8 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-
-    "paths": {
-      "@/*" :  ["./*"]
-    }
-  }
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src", "components", "context", "data", "hooks", "types", "*.ts", "*.tsx"],
+  "exclude": ["node_modules", "dist"]
 }

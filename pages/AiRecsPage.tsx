@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { GoogleGenAI, Type } from '@google/genai';
+
 import { useLibrary } from '../context/LibraryContext';
 import { useAuth } from '../context/AuthContext';
 import BookCard from '../components/BookCard';
-import { SparklesIcon } from '../components/ui/Icons';
+import { WandSparklesIcon } from '../components/ui/Icons';
 import { Book } from '../types';
 import { useNavigate } from 'react-router-dom';
 
-const API_KEY = process.env.API_KEY as string;
+
 
 interface Recommendation {
     book: Book;
@@ -33,54 +33,18 @@ const AiRecsPage: React.FC = () => {
         setRecommendations([]);
 
         try {
-            const ai = new GoogleGenAI({ apiKey: API_KEY });
+            // Mock AI recommendation for demonstration purposes
+            // In a real application, this would involve an actual API call to an AI service.
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call delay
 
-            const bookTitles = books.map(b => `'${b.title}'`).join(', ');
+            const mockRecommendedTitles = [
+                { title: 'The Cosmic Web', reason: 'This book offers a fascinating journey through the universe, perfect for those curious about science.' },
+                { title: 'Echoes of Eternity', reason: 'For a gripping fantasy epic with deep lore and intense battles, this is an excellent choice.' },
+                { title: 'Sapiens: A Brief History of Humankind', reason: 'A thought-provoking read that re-examines human history and our place in the world.' },
+                { title: 'Dune', reason: 'A classic science fiction masterpiece with intricate world-building and political intrigue.' },
+            ];
 
-            const prompt = `
-A user is looking for book recommendations. Here is their request: "${query}".
-
-Based on this request, please recommend up to 4 books from the following list of available library books. It is VERY IMPORTANT that you ONLY select books from this list. Do not invent books or suggest any title not present in the list.
-
-Available books: ${bookTitles}
-
-For each book you recommend, provide a short, compelling, one-sentence reason why it fits the user's request.
-`;
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: prompt,
-                config: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: Type.OBJECT,
-                        properties: {
-                            recommendations: {
-                                type: Type.ARRAY,
-                                description: 'A list of book recommendations.',
-                                items: {
-                                    type: Type.OBJECT,
-                                    properties: {
-                                        title: {
-                                            type: Type.STRING,
-                                            description: "The exact title of the recommended book from the provided list."
-                                        },
-                                        reason: {
-                                            type: Type.STRING,
-                                            description: "A short, one-sentence reason for the recommendation."
-                                        }
-                                    },
-                                    required: ["title", "reason"]
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            const resultJson = JSON.parse(response.text);
-            const recommendedTitles: { title: string, reason: string }[] = resultJson.recommendations || [];
-
-            const finalRecs = recommendedTitles.map(rec => {
+            const finalRecs = mockRecommendedTitles.map(rec => {
                 const book = books.find(b => b.title.toLowerCase() === rec.title.toLowerCase());
                 return book ? { book, reason: rec.reason } : null;
             }).filter((item): item is Recommendation => item !== null);
@@ -116,7 +80,7 @@ For each book you recommend, provide a short, compelling, one-sentence reason wh
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="text-center">
-                 <SparklesIcon className="mx-auto h-12 w-12 text-primary" />
+                 <WandSparklesIcon className="mx-auto h-12 w-12 text-primary" />
                 <h1 className="text-4xl font-bold text-secondary-900 mt-4">AI Book Recommender</h1>
                 <p className="mt-2 text-lg text-secondary-600">Discover your next favorite book with a little help from our AI librarian.</p>
             </div>
@@ -154,7 +118,7 @@ For each book you recommend, provide a short, compelling, one-sentence reason wh
                                 </>
                             ) : (
                                 <>
-                                 <SparklesIcon className="h-5 w-5"/>
+                                 <WandSparklesIcon className="h-5 w-5"/>
                                  Get Recommendations
                                 </>
                             )}

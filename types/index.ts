@@ -20,6 +20,11 @@ export interface User {
   role: 'student' | 'teacher' | 'admin';
   membershipDate: string;
   borrowHistory?: BorrowedBook[];
+  borrowedBooks?: string[];
+  token?: string;
+  expiresAt?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface BorrowedBook {
@@ -41,6 +46,6 @@ export interface SearchResult {
   subtitle?: string;
   description?: string;
   route: string;
-  data?: any;
+  data?: unknown;
   priority: number;
 }

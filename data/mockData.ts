@@ -1,9 +1,9 @@
 import { Book, User, BorrowedBook } from '../types';
 
 export const mockUsers: User[] = [
-  { id: 'user-1', name: 'John Doe', email: 'john@student.edu', role: 'student', membershipDate: '2023-01-15', borrowHistory: [] },
-  { id: 'user-2', name: 'Jane Smith', email: 'jane@teacher.edu', role: 'teacher', membershipDate: '2022-08-20', borrowHistory: [] },
-  { id: 'user-3', name: 'Admin User', email: 'admin@library.edu', role: 'admin', membershipDate: '2020-02-10', borrowHistory: [] },
+  { id: 'user-1', name: 'John Doe', email: 'john@student.edu', role: 'student', membershipDate: '2023-01-15', borrowHistory: [], createdAt: '2023-01-15T10:00:00Z', updatedAt: '2023-01-15T10:00:00Z' },
+  { id: 'user-2', name: 'Jane Smith', email: 'jane@teacher.edu', role: 'teacher', membershipDate: '2022-08-20', borrowHistory: [], createdAt: '2022-08-20T11:00:00Z', updatedAt: '2022-08-20T11:00:00Z' },
+  { id: 'user-3', name: 'Admin User', email: 'admin@library.edu', role: 'admin', membershipDate: '2020-02-10', borrowHistory: [], createdAt: '2020-02-10T12:00:00Z', updatedAt: '2020-02-10T12:00:00Z' },
 ];
 
 export const mockBooks: Book[] = [

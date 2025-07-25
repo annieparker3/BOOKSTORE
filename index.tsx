@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import { AuthProvider } from './context/AuthContext';
+import { LibraryProvider } from './context/LibraryContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -10,6 +12,10 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <App />
+    <AuthProvider>
+      <LibraryProvider>
+        <App />
+      </LibraryProvider>
+    </AuthProvider>
   </React.StrictMode>
 );

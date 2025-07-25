@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import GlobalSearch from './GlobalSearch';
-import { BookOpenIcon, MenuIcon, XIcon, UserIcon, SparklesIcon } from './ui/Icons';
+import { BookOpenIcon, MenuIcon, XIcon, UserIcon, WandSparklesIcon } from './ui/Icons';
 
 const NavItem: React.FC<{ to: string; children: React.ReactNode }> = ({ to, children }) => (
     <NavLink
@@ -18,7 +18,7 @@ const NavItem: React.FC<{ to: string; children: React.ReactNode }> = ({ to, chil
 );
 
 const Navigation: React.FC = () => {
-    const { user, logout, isGuest } = useAuth();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -30,7 +30,7 @@ const Navigation: React.FC = () => {
     const navLinks = [
         { path: '/', label: 'Home' },
         { path: '/categories', label: 'Categories' },
-        { path: '/ai-recs', label: 'AI Recs', auth: true, icon: <SparklesIcon className="h-4 w-4" /> },
+        { path: '/ai-recs', label: 'AI Recs', auth: true, icon: <WandSparklesIcon className="h-4 w-4" /> },
         { path: '/dashboard', label: 'My Library', auth: true },
         { path: '/admin', label: 'Admin', admin: true },
     ].filter(link => {

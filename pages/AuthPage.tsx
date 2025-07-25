@@ -39,17 +39,12 @@ const AuthPage: React.FC = () => {
         }
 
         try {
-            let success = false;
-            if (isLoginView) {
-                success = await login(email, password);
-                if (!success) setError('Invalid email or password.');
-            } else {
-                success = await signup(name, email, password, role);
-                if (!success) setError('User with this email already exists.');
-            }
+            const response = isLoginView ? await login(email, password) : await signup(name, email, password, role);
 
-            if (success) {
+            if (response.success) {
                 navigate('/dashboard');
+            } else {
+                setError(response.message || 'An unexpected error occurred.');
             }
         } catch (err) {
             setError('An unexpected error occurred. Please try again.');

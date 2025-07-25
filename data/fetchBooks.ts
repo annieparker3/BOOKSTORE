@@ -1,5 +1,16 @@
 import { Book } from '../types';
 
+interface OpenLibraryBook {
+  key: string;
+  title: string;
+  author_name: string[];
+  isbn: string[];
+  first_sentence: string | string[];
+  cover_i: string;
+  cover_edition_key: string;
+  first_publish_year: number;
+}
+
 const GENRE_QUERIES: Record<string, string> = {
   Romance: 'romance',
   Animation: 'animation',
@@ -18,13 +29,13 @@ const GENRE_QUERIES: Record<string, string> = {
   "Science Fiction": 'science_fiction',
 };
 
-const normalizeBook = (doc: any, genre: string): Book => ({
+const normalizeBook = (doc: OpenLibraryBook, genre: string): Book => ({
   id: doc.key ? doc.key.replace('/works/', '') : doc.cover_edition_key || doc.title,
   title: doc.title,
   author: doc.author_name ? doc.author_name[0] : 'Unknown',
   isbn: doc.isbn ? doc.isbn[0] : doc.cover_edition_key || doc.key || doc.title,
   category: genre,
-  description: doc.first_sentence ? (typeof doc.first_sentence === 'string' ? doc.first_sentence : doc.first_sentence[0]) : 'No description available.',
+  description: doc.first_sentence ? (Array.isArray(doc.first_sentence) ? doc.first_sentence[0] : doc.first_sentence) : 'No description available.',
   coverImage: doc.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg` : '',
   isAvailable: true,
   totalCopies: 5,
@@ -41,7 +52,7 @@ export async function fetchBooksByGenres(genres: string[], booksPerGenre = 10): 
       const res = await fetch(`https://openlibrary.org/search.json?subject=${encodeURIComponent(query)}&limit=${booksPerGenre}`);
       const data = await res.json();
       if (data.docs && Array.isArray(data.docs)) {
-        allBooks.push(...data.docs.map((doc: any) => normalizeBook(doc, genre)));
+        allBooks.push(...data.docs.map((doc: OpenLibraryBook) => normalizeBook(doc, genre)));
       }
     } catch (e) {
       // Ignore errors for individual genres

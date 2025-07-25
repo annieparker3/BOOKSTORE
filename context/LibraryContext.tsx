@@ -15,6 +15,7 @@ interface LibraryContextType {
   updateBook: (updatedBook: Book) => Promise<boolean>;
   deleteBook: (bookId: string) => Promise<boolean>;
   isBookBorrowedByUser: (bookId: string) => boolean;
+  loadingBooks: boolean;
 }
 
 const LibraryContext = createContext<LibraryContextType | undefined>(undefined);
@@ -25,6 +26,7 @@ const addDays = (date: Date, days: number) => {
     return result;
 }
 
+/* eslint-disable react-refresh/only-export-components */
 export const LibraryProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const [books, setBooks] = useState<Book[]>([]);
@@ -178,7 +180,7 @@ export const LibraryProvider: React.FC<{ children: ReactNode }> = ({ children })
 
 
   return (
-    <LibraryContext.Provider value={{ books, users, borrowedBooks, borrowBook, returnBook, renewBook, addBook, updateBook, deleteBook, isBookBorrowedByUser }}>
+    <LibraryContext.Provider value={{ books, users, borrowedBooks, borrowBook, returnBook, renewBook, addBook, updateBook, deleteBook, isBookBorrowedByUser, loadingBooks }}>
       {loadingBooks ? <div className="w-full text-center py-16 text-secondary-600 text-lg">Loading books from the internet...</div> : children}
     </LibraryContext.Provider>
   );

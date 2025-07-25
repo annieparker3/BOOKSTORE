@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLibrary } from '../context/LibraryContext';
-import { Book, User, BorrowedBook } from '../types';
+import { Book, User } from '../types';
 import BookCard from '../components/BookCard';
 import BookFormModal from '../components/BookFormModal';
 import { BookIcon, UsersIcon, CalendarIcon, AlertTriangleIcon } from '../components/ui/Icons';
@@ -44,9 +44,8 @@ const AdminPage: React.FC = () => {
         totalOverdue: borrowedBooks.filter(b => b.isOverdue).length,
     }), [books, users, borrowedBooks]);
 
-    // Tab-specific global search filtering
-    const searchBookIds = new Set(globalSearchResults.books.map(b => b.data?.id));
-    const searchUserIds = new Set(globalSearchResults.users.map(u => u.data?.id));
+    const searchBookIds = useMemo(() => new Set(globalSearchResults.books.map(b => (b.data as Book)?.id).filter(Boolean) as string[]), [globalSearchResults.books]);
+    const searchUserIds = useMemo(() => new Set(globalSearchResults.users.map(u => (u.data as User)?.id).filter(Boolean) as string[]), [globalSearchResults.users]);
     const filteredBooks = useMemo(() => {
         if (globalSearchQuery) {
             return books.filter(b => searchBookIds.has(b.id));

@@ -14,25 +14,28 @@ interface BookFormModalProps {
 
 const categories = [...new Set(mockBooks.map(book => book.category))];
 
+const getInitialFormData = (initialData?: Book | null): Book | BookFormData => {
+    if (initialData) {
+        return initialData;
+    }
+    return {
+        title: '',
+        author: '',
+        isbn: '',
+        category: categories[0] || '',
+        description: '',
+        coverImage: 'https://picsum.photos/seed/newbook/400/600',
+        totalCopies: 1,
+        publishedYear: new Date().getFullYear(),
+        rating: 0,
+    };
+};
+
 const BookFormModal: React.FC<BookFormModalProps> = ({ isOpen, onClose, onSubmit, initialData }) => {
-    const [formData, setFormData] = useState<Book | BookFormData | any>({});
+    const [formData, setFormData] = useState<Book | BookFormData>(getInitialFormData(initialData));
 
     useEffect(() => {
-        if (initialData) {
-            setFormData(initialData);
-        } else {
-            setFormData({
-                title: '',
-                author: '',
-                isbn: '',
-                category: categories[0] || '',
-                description: '',
-                coverImage: 'https://picsum.photos/seed/newbook/400/600',
-                totalCopies: 1,
-                publishedYear: new Date().getFullYear(),
-                rating: 0,
-            });
-        }
+        setFormData(getInitialFormData(initialData));
     }, [initialData, isOpen]);
 
     if (!isOpen) return null;

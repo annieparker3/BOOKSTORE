@@ -5,6 +5,7 @@ import SearchBar from '../components/SearchBar';
 import GlobalSearch from '../components/GlobalSearch';
 import { useAuth } from '../context/AuthContext';
 import { useLibrary } from '../context/LibraryContext';
+import { Book } from '../types';
 import { useSearch } from '../hooks/useSearch';
 
 const HomePage: React.FC = () => {
@@ -21,8 +22,8 @@ const HomePage: React.FC = () => {
     const activeMembers = useMemo(() => users.length, [users]);
 
     // If search is active, show only books from global search results
-    const searchBookIds = new Set(globalSearchResults.books.map(b => b.data?.id));
     const filteredAndSortedBooks = useMemo(() => {
+        const searchBookIds = new Set(globalSearchResults.books.map(b => (b.data as Book)?.id).filter(Boolean) as string[]);
         let filtered = [...books];
         if (searchQuery) {
             filtered = filtered.filter(b => searchBookIds.has(b.id));
@@ -62,11 +63,11 @@ const HomePage: React.FC = () => {
                 filtered.sort((a, b) => b.publishedYear - a.publishedYear);
                 break;
             case 'year_old':
-                filtered.sort((a, b) => a.publishedYear - b.publishedYear).reverse();
+                filtered.sort((a, b) => a.publishedYear - b.publishedYear);
                 break;
         }
         return filtered;
-    }, [books, filters, searchQuery, searchBookIds]);
+    }, [books, filters, searchQuery, globalSearchResults.books]);
     
     const handleBorrow = async (bookId: string) => {
         if (!user) {

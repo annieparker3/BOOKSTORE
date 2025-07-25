@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useLibrary } from '../context/LibraryContext';
 import { useAuth } from '../context/AuthContext';
@@ -9,7 +9,7 @@ import GlobalSearch from '../components/GlobalSearch';
 import { useSearch } from '../hooks/useSearch';
 
 interface CategoryVisuals {
-    icon: React.FC<any>;
+    icon: React.FC<React.SVGProps<SVGSVGElement>>;
     color: string;
     ring: string;
     text: string;
@@ -45,31 +45,37 @@ const CategoriesPage: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const globalSearchResults = useSearch(searchQuery, user);
 
-    useEffect(() => {
-        setSelectedCategory(searchParams.get('category'));
-        setSelectedAuthor(searchParams.get('author'));
-    }, [searchParams]);
+    const categoryStats = useMemo(() => {
+        const stats: { [key: string]: CategoryStat } = {};
+        books.forEach(book => {
+            if (!stats[book.category]) {
+                stats[book.category] = {
+                    name: book.category,
+                    totalBooks: 0,
+                    available: 0,
+                    avgRating: 0,
+                    mostPopularBook: '',
+                };
+            }
+            stats[book.category].totalBooks++;
+            if (book.isAvailable && book.availableCopies > 0) {
+                stats[book.category].available++;
+            }
+            stats[book.category].avgRating += book.rating;
+        });
 
-    const categoryStats: CategoryStat[] = useMemo(() => {
-        const categories = [...new Set(books.map(b => b.category))];
-        return categories.map(cat => {
-            const booksInCategory = books.filter(b => b.category === cat);
-            const total = booksInCategory.length;
-            const available = booksInCategory.filter(b => b.availableCopies > 0).length;
-            const avgRating = booksInCategory.reduce((acc, b) => acc + b.rating, 0) / total;
-            const mostPopularBook = booksInCategory.sort((a,b) => b.rating - a.rating)[0]?.title || 'N/A';
-            return {
-                name: cat,
-                totalBooks: total,
-                available,
-                avgRating: parseFloat(avgRating.toFixed(1)),
-                mostPopularBook,
-            };
-        }).sort((a, b) => b.totalBooks - a.totalBooks);
+        // Calculate average rating and find most popular book
+        for (const categoryName in stats) {
+            stats[categoryName].avgRating /= stats[categoryName].totalBooks;
+            const booksInCategory = books.filter(b => b.category === categoryName);
+            const mostPopular = booksInCategory ? booksInCategory.sort((a, b) => b.rating - a.rating)[0] : null;
+            stats[categoryName].mostPopularBook = mostPopular ? mostPopular.title : '';
+        }
+
+        return Object.values(stats);
     }, [books]);
 
-    // If search is active, show only books from global search results
-    const searchBookIds = new Set(globalSearchResults.books.map(b => b.data?.id));
+    const searchBookIds = useMemo(() => new Set(globalSearchResults.books.map(b => (b.data as Book)?.id).filter(Boolean) as string[]), [globalSearchResults.books]);
     const filteredBooks = useMemo(() => {
         let filtered = [...books];
         if (searchQuery) {
@@ -87,11 +93,7 @@ const CategoriesPage: React.FC = () => {
         setSelectedAuthor(null);
         setSearchParams({ category });
     };
-    const handleSelectAuthor = (author: string) => {
-        setSelectedAuthor(author);
-        setSelectedCategory(null);
-        setSearchParams({ author });
-    };
+    
 
     const handleBreadcrumbClick = () => {
         setSelectedCategory(null);

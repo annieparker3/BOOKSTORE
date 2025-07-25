@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSearch, GroupedSearchResults } from '../hooks/useSearch';
 import { useAuth } from '../context/AuthContext';
@@ -40,62 +40,46 @@ const GlobalSearch: React.FC = () => {
     const groupedResults = useSearch(query, user);
     const navigate = useNavigate();
     const searchRef = useRef<HTMLDivElement>(null);
-    const [activeGroup, setActiveGroup] = useState(0);
     const [activeIndex, setActiveIndex] = useState(-1);
 
     // Flattened list for keyboard navigation
-    const flatResults = groupOrder.flatMap(group => groupedResults[group]).slice(0, 15);
+    const flatResults = useMemo(() => groupOrder.flatMap(group => groupedResults[group]).slice(0, 15), [groupedResults]);
 
-    const handleNavigation = (route: string) => {
-        navigate(route);
-        setQuery('');
+    const handleNavigation = useCallback((route: string) => {
         setIsOpen(false);
-        setActiveIndex(-1);
-        setActiveGroup(0);
-    };
+        setQuery('');
+        navigate(route);
+    }, [navigate]);
 
-    const handleClickOutside = useCallback((event: MouseEvent) => {
-        if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-            setIsOpen(false);
-        }
-    }, []);
-    
-    useEffect(() => {
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [handleClickOutside]);
-
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (!isOpen || flatResults.length === 0) return;
+    const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
         if (e.key === 'ArrowDown') {
             e.preventDefault();
             setActiveIndex(prev => (prev + 1) % flatResults.length);
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
             setActiveIndex(prev => (prev - 1 + flatResults.length) % flatResults.length);
-        } else if (e.key === 'Enter' && activeIndex >= 0) {
+        } else if (e.key === 'Enter') {
             e.preventDefault();
-            handleNavigation(flatResults[activeIndex].route);
+            if (activeIndex >= 0 && flatResults[activeIndex]) {
+                handleNavigation(flatResults[activeIndex].route);
+            }
         } else if (e.key === 'Escape') {
             setIsOpen(false);
+            setActiveIndex(-1);
         }
-    };
+    }, [activeIndex, flatResults, handleNavigation]);
 
-    // Find group and index within group for highlighting
-    const getGroupAndIndex = (flatIdx: number) => {
-        let count = 0;
-        for (let g = 0; g < groupOrder.length; g++) {
-            const group = groupOrder[g];
-            const arr = groupedResults[group];
-            if (flatIdx < count + arr.length) {
-                return { group, idx: flatIdx - count };
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
             }
-            count += arr.length;
-        }
-        return { group: groupOrder[0], idx: 0 };
-    };
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [searchRef]);
 
     return (
         <div className="relative w-full max-w-xs xl:max-w-md" ref={searchRef}>
@@ -109,7 +93,6 @@ const GlobalSearch: React.FC = () => {
                         setQuery(e.target.value);
                         setIsOpen(true);
                         setActiveIndex(-1);
-                        setActiveGroup(0);
                     }}
                     onFocus={() => setIsOpen(true)}
                     onKeyDown={handleKeyDown}
@@ -132,7 +115,7 @@ const GlobalSearch: React.FC = () => {
                                 <div key={group}>
                                     <div className="px-4 pt-3 pb-1 text-xs font-semibold text-secondary-500 uppercase tracking-wider" role="presentation">{groupLabels[group]}</div>
                                     <ul>
-                                        {groupedResults[group].map((result, idx) => {
+                                        {groupedResults[group].map((result: SearchResult) => {
                                             const flatIdx = flatResults.findIndex(r => r.id === result.id);
                                             return (
                                                 <li key={result.id}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { SearchResult, Book, User } from '../types';
+import { SearchResult, User } from '../types';
 import { mockBooks, mockUsers } from '../data/mockData';
 
 const pages: Omit<SearchResult, 'id' | 'priority'>[] = [
@@ -36,7 +36,7 @@ export const useSearch = (query: string, user: User | null): GroupedSearchResult
         }
 
         const lowerCaseQuery = query.toLowerCase();
-        let allResults: SearchResult[] = [];
+        const allResults: SearchResult[] = [];
 
         // Helper for exact match boost
         const isExact = (str: string) => str.toLowerCase() === lowerCaseQuery;
